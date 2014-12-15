@@ -1,0 +1,653 @@
+<!--
+slidedeck: A modification of the Google IO 2012 HTML5 slide template
+URL: https://github.com/rmcgibbo/slidedeck
+
+Based on https://github.com/francescolaffi/elastic-google-io-slides, and
+ultimately:
+
+Google IO 2012 HTML5 Slide Template
+Authors: Eric Bidelman <ebidel@gmail.com>
+         Luke Mahe <lukem@google.com>
+URL: https://code.google.com/p/io-2012-slides
+-->
+<!DOCTYPE html>
+<html>
+<head>
+  <title> Engineering a full python stack for biophysical computation</title>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <!--<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">-->
+  <!--<meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+  <!--This one seems to work all the time, but really small on ipad-->
+  <!--<meta name="viewport" content="initial-scale=0.4">-->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+   <link rel="shortcut icon" href=" figures/membrane.png"/> 
+  <link rel="stylesheet" media="all" href="theme/css/default.css">
+  <link rel="stylesheet" media="all" href="theme/css/custom.css">
+  <link rel="stylesheet" media="only screen and (max-device-width: 480px)" href="theme/css/phone.css">
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->
+  <script data-main="js/slides", src="http://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.14/require.min.js"></script>
+
+
+  <!-- MathJax support  -->
+  <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX", "output/HTML-CSS"],
+    showProcessingMessages: false,
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+      processEscapes: true
+    },
+    TeX: {
+      extensions: ["color.js"]
+    },
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+  </script>
+  <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  <div style="display:hidden">
+  \[
+    \definecolor{data}{RGB}{18,110,213}
+    \definecolor{unknown}{RGB}{217,86,16}
+    \definecolor{learned}{RGB}{175,114,176}
+  \]
+  </div>
+
+</head>
+
+<body style="opacity: 0">
+
+<slides class="layout-widescreen">
+<slide class="title-slide segue nobackground">
+  <hgroup class="auto-fadein">
+
+    <h1> Engineering a full python stack for biophysical computation</h1>
+    <h2></h2>
+    <p> Kyle A. Beauchamp</p>
+  </hgroup>
+</slide>
+
+
+<slide  >
+  
+    <hgroup>
+      <h2>Moore's Law</h2>
+      <h3></h3>
+    </hgroup>
+    <article ><p><center>
+<img height=550 src=figures/moore_law.png />
+</center></p>
+<footer class="source"> 
+http://en.wikipedia.org/wiki/Moore%27s_law
+</footer></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>erooM's Law for R&D Efficiency</h2>
+      <h3>Producing a drug costs $2B and 15 years, with 95% fail rate</h3>
+    </hgroup>
+    <article ><p><center>
+<img height=400 src=figures/eroom.png />
+</center></p>
+<footer class="source"> 
+Scannell, 2012
+</footer></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>How can computers help design drugs?</h2>
+      <h3></h3>
+    </hgroup>
+    <article ><p><center>
+<img height=475 src=figures/cruise.png />
+</center></p>
+<footer class="source"> 
+Figure credit: @jchodera, Tom Cruise
+</footer></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Challenges in molecular medicine</h2>
+      <h3></h3>
+    </hgroup>
+    <article ><ul>
+<li>Can we link nanoscale biophysics with human disease?</li>
+<li>Can we rationally engineer protein-drug binding?</li>
+</ul></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Our Toolbox: Molecular Dynamics</h2>
+      <h3></h3>
+    </hgroup>
+    <article ><ul>
+<li>Physics-based simulations of biomolecules</li>
+<li>Numerically integrate (classical) equations of motion</li>
+<li>Protein, water, salts, drugs</li>
+</ul>
+<div>
+<video id="sampleMovie" class="center" src="movies/shaw-dasatanib-2.mov" loop=\"true\ autoPlay=\"true\  width="512" height="384"></video>
+</div>
+
+<footer class="source"> 
+Shan et al: J. Am. Chem. Soc. (2011).  <br>
+http://deshawresearch.com/
+</footer></article>
+ 
+</slide>
+
+<slide class="segue dark nobackground" >
+  
+    <!-- <aside class="gdbar"><img src="images/google_developers_icon_128.png"></aside> -->
+    <hgroup class="auto-fadein">
+      <h2>Software for Biophysics</h2>
+      <h3></h3>
+    </hgroup>
+  
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>How do we reach biological timescales?</h2>
+      <h3>Challenge: $10^5$ atoms, $10^{12}$ iterations.</h3>
+    </hgroup>
+    <article ><p><center>
+<img height=450 src=figures/protein_timescales.jpg />
+</center></p>
+<footer class="source">
+Church, 2011.
+</footer></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>OpenMM</h2>
+      <h3>GPU accelerated molecular dynamics</h3>
+    </hgroup>
+    <article ><ul>
+<li>Extensible C++ library with Python wrappers</li>
+<li>Hardware backends for CUDA, OpenCL, CPU</li>
+<li><mathjax>$&gt;100$</mathjax> nanoseconds (<mathjax>$10^{-7}$</mathjax> s) per day on a GTX Titan</li>
+</ul>
+<p><center>
+<img height=300 src=figures/openmm.png />
+</center></p>
+<footer class="source"> 
+openmm.org <br>
+Eastman et al, 2012.
+</footer></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>OpenMM Powers Folding@Home</h2>
+      <h3></h3>
+    </hgroup>
+    <article ><ul>
+<li>Largest distributed computing project</li>
+<li>100,000 CPUs, 10,000 GPUs, 40 petaflops!</li>
+<li>Hundreds of microseconds per day aggregate simulation</li>
+<li>~100 research papers on folding, misfolding, signalling</li>
+</ul>
+<p><center>
+<img height=300 src=figures/folding-icon.png />
+</center></p>
+<footer class="source"> 
+http://folding.stanford.edu/ <br>
+Gromacs also powers Folding@Home: http://gromacs.org/
+</footer></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Trajectory munging with MDTraj</h2>
+      <h3>Read, write, and analyze trajectories with only a few lines of Python.</h3>
+    </hgroup>
+    <article ><ul>
+<li>Multitude of formats (PDB, DCD, XTC, HDF, CDF, mol2)</li>
+<li>Geometric trajectory analysis (distances, angles, RMSD)</li>
+<li>Numpy / SSE kernels enable Folding@Home scale analysis</li>
+</ul>
+<p><center>
+<img height=200 src=figures/mdtraj_logo-small.png />
+</center></p>
+<footer class="source"> 
+mdtraj.org <br>
+McGibbon et al, 2014
+</footer></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Trajectory munging with MDTraj</h2>
+      <h3>Lightweight Pythonic API</h3>
+    </hgroup>
+    <article ><pre class="prettyprint" data-lang="python">
+import mdtraj as md
+
+trajectory = md.load("./trajectory.h5")
+indices, phi = md.compute_phi(trajectory)
+</pre>
+
+<p><center>
+<img height=300 src=figures/phi.png />
+</center></p>
+<footer class="source"> 
+mdtraj.org <br>
+McGibbon et al, 2014
+</footer></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>MDTraj IPython Notebook</h2>
+      <h3></h3>
+    </hgroup>
+    <article ><p><center>
+<img height=525 src=figures/mdtraj_notebook.png />
+</center></p>
+<footer class="source"> 
+mdtraj.org <br>
+McGibbon et al, 2014
+</footer></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>MSMBuilder</h2>
+      <h3>Finding meaning in massive simulation datasets</h3>
+    </hgroup>
+    <article ><p><center>
+<img height=300 src=figures/msmbuilder.png />
+</center></p>
+<footer class="source"> 
+msmbuilder.org <br>
+https://github.com/msmbuilder/msmbuilder
+</footer></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>MSMBuilder</h2>
+      <h3>Markov State Models of Conformational Dynamics</h3>
+    </hgroup>
+    <article ><p><center>
+<img height=400 src=figures/NTL9_network.jpg />
+</center></p>
+<footer class="source"> 
+Voelz, Bowman, Beauchamp, Pande. J. Am. Chem. Soc., 2010
+</footer></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>MSMBuilder</h2>
+      <h3>sklearn-like statistical models for conformation dynamics</h3>
+    </hgroup>
+    <article ><pre class="prettyprint" data-lang="python">
+
+import mdtraj as md
+from msmbuilder import datasets, cluster, markovstatemodel
+from sklearn.pipeline import make_pipeline
+
+dataset = datasets.alanine_dipeptide.fetch_alanine_dipeptide()  # From Figshare!
+trajectories = dataset["trajectories"]  # List of MDTraj Trajectory Objects
+
+clusterer = cluster.KCenters(n_clusters=10, metric=md.rmsd)
+msm = markovstatemodel.MarkovStateModel()
+
+pipeline = make_pipeline([clusterer, msm])
+pipeline.fit(trajectories)
+
+</pre>
+
+<footer class="source"> 
+msmbuilder.org <br>
+https://github.com/msmbuilder/msmbuilder
+</footer></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Yank</h2>
+      <h3>Fast, accurate alchemical ligand binding simulations</h3>
+    </hgroup>
+    <article ><p><center>
+<div>
+<video id="sampleMovie" class="center" src="movies/alch.mov" loop=\"true\ autoPlay=\"true\  width="512" height="384"></video>
+</div>
+</center></p>
+<footer class="source"> 
+https://github.com/choderalab/yank <br>
+http://alchemistry.org/
+</footer></article>
+ 
+</slide>
+
+<slide class="segue dark nobackground" >
+  
+    <!-- <aside class="gdbar"><img src="images/google_developers_icon_128.png"></aside> -->
+    <hgroup class="auto-fadein">
+      <h2>Python Packaging Blues</h2>
+      <h3></h3>
+    </hgroup>
+  
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Building scientific software is hard!</h2>
+      <h3></h3>
+    </hgroup>
+    <article ><pre>
+
+<font color="red">User: I couldn't really install the mdtraj module on my computer [...]
+User: I tried easy_install and other things and that didn't work for me.</font>
+
+</pre></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Building scientific software is hard!</h2>
+      <h3>2008: I was compiling BLAS / Numpy / Scipy by hand...</h3>
+    </hgroup>
+    <article ><p><center>
+<img height=520 src=figures/dependencies0.png />
+</center></p>
+<footer class="source"> 
+Red means hard to install.
+</footer></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Building scientific software is hard!</h2>
+      <h3>2010: Switched to Enthought python</h3>
+    </hgroup>
+    <article ><p><center>
+<img height=520 src=figures/dependencies1.png />
+</center></p>
+<footer class="source"> 
+Red means hard to install.
+</footer></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Building scientific software is hard!</h2>
+      <h3>Present: Conda</h3>
+    </hgroup>
+    <article ><p><center>
+<img height=520 src=figures/dependencies2.png />
+</center></p>
+<footer class="source"> 
+Red means hard to install.
+</footer></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Avoiding glibc Hell</h2>
+      <h3></h3>
+    </hgroup>
+    <article ><pre class="prettyprint" data-lang="bash">
+
+-bash-4.1$ parmchk2
+~/opt/bin/parmchk2_pvt: /lib64/libc.so.6: version `GLIBC_2.14' not found
+</pre>
+
+<ul>
+<li>Problem: users insist on old Linux versions</li>
+<li>Solution: build all recipes on a Centos 6.6 VM </li>
+</ul>
+<footer class="source"> 
+https://github.com/omnia-md/virtual-machines/
+</footer></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Facile package sharing</h2>
+      <h3></h3>
+    </hgroup>
+    <article ><pre>
+
+<font color="red">User: I couldn't really install the mdtraj module on my computer [...]
+User: I tried easy_install and other things and that didn't work for me.</font>
+
+<font color="blue">Me: Installing mdtraj should be a one line command:
+Me: `conda install -c https://conda.binstar.org/omnia mdtraj`</font>
+
+<font color="red">User: Success!</font>
+
+</pre></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>A full stack for biophysical computation</h2>
+      <h3>Simulation, Munging, Analysis, Visualization</h3>
+    </hgroup>
+    <article ><pre class="prettyprint" data-lang="bash">
+conda install -c http://conda.binstar.org/omnia/channel/omnia1_beta1 omnia
+</pre>
+
+<ul>
+<li>OpenMM</li>
+<li>MDTraj</li>
+<li>MSMBuilder / Mixtape</li>
+<li>Yank</li>
+<li>EMMA<mathjax>$^1$</mathjax></li>
+</ul>
+<footer class="source"> 
+1: Senne, Noe.  J. Chem. Theor. Comp. 2012
+</footer></article>
+ 
+</slide>
+
+<slide class="segue dark nobackground" >
+  
+    <!-- <aside class="gdbar"><img src="images/google_developers_icon_128.png"></aside> -->
+    <hgroup class="auto-fadein">
+      <h2>Automating Biophysics</h2>
+      <h3></h3>
+    </hgroup>
+  
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Models are made to be broken</h2>
+      <h3>How can we falsify and refine computer based models?</h3>
+    </hgroup>
+    <article ><ul>
+<li>Chemistry and biophysics are labor-intensive</li>
+<li>Thousands of parameters = thousands of measurements</li>
+<li>Reproducibilty and scalability</li>
+</ul></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Can experiments be easy as Py(thon)?</h2>
+      <h3></h3>
+    </hgroup>
+    <article ><pre class="prettyprint" data-lang="python">
+
+from itctools.procedures import ITCExperiment
+from itctools.materials import Solvent
+from itctools.labware import Labware
+
+# [...]
+
+water = Solvent('water', density=0.9970479 * grams / milliliter)
+source_plate = Labware(RackLabel='SourcePlate', RackType='5x3 Vial Holder')
+experiment = ITCExperiment()
+
+
+</pre>
+
+<footer class="source"> 
+Work by @jhprinz and @bas-rustenburg
+<br>
+https://github.com/choderalab/robots <t> https://github.com/choderalab/itctools
+</footer></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Robots!</h2>
+      <h3></h3>
+    </hgroup>
+    <article ><p><center>
+<video width="960" height="540" controls>
+  <source src="movies/robot.mp4" type="video/mp4">
+</video>
+</center> </p></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Biophysical modeling should be:</h2>
+      <h3></h3>
+    </hgroup>
+    <article ><ul>
+<li>Reproducible</li>
+<li>Automatable</li>
+<li>Accessible</li>
+<li>Tested</li>
+<li>Useful</li>
+</ul></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>People</h2>
+      <h3></h3>
+    </hgroup>
+    <article ><ul>
+<li>John Chodera + ChoderaLab (MSKCC)</li>
+<li>Robert McGibbon (Stanford)</li>
+<li>Peter Eastman (Stanford)</li>
+<li>Vijay Pande + PandeLab (Stanford)</li>
+<li>Daniel Parton (MSKCC)</li>
+<li>Yutong Zhao (Stanford, Folding@Home)</li>
+<li>Joy Ku (Stanford)</li>
+<li>Jason Swails (Rutgers)</li>
+<li>Justin MacCallum (U. Calgary)</li>
+</ul>
+<footer class="source"> 
+Jan-Hendrik Prinz, Bas Rustenburg, Sonya Hanson
+Greg Bowman, Christian Schwantes, TJ Lane, Vince Voelz, Imran Haque, Matthew Harrigan, Carlos Hernandez, Bharath Ramsundar, Lee-Ping Wang
+Frank Noe, Martin Scherer, Xuhui Huang, Sergio Bacallado, Mark Friedrichs
+</footer></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Questions?</h2>
+      <h3></h3>
+    </hgroup>
+    <article ><pre class="prettyprint" data-lang="bash">
+conda install -c https://conda.binstar.org/omnia/channel/test omnia
+</pre>
+
+<p>omnia.md</p>
+<p>openmm.org</p>
+<p>mdtraj.org</p>
+<p>github.com/msmbuilder/msmbuilder</p>
+<p>github.com/choderalab/yank/</p></article>
+ 
+</slide>
+
+
+<slide class="thank-you-slide segue nobackground">
+  <!-- <aside class="gdbar right"><img src="images/google_developers_icon_128.png"></aside> -->
+  <article class="flexbox vleft auto-fadein">
+    <h2></h2>
+    <p></p>
+  </article>
+  <p data-config-contact class="auto-fadein"></p>
+  </p>
+</slide>
+
+<slide class="backdrop"></slide>
+
+</slides>
+
+<script>
+var _gaq = _gaq || [];
+_gaq.push(['_setAccount', 'UA-XXXXXXXX-1']);
+_gaq.push(['_trackPageview']);
+
+(function() {
+  var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+  ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+})();
+</script>
+
+<!--[if IE]>
+  <script src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js"></script>
+  <script>CFInstall.check({mode: 'overlay'});</script>
+<![endif]-->
+</body>
+</html>
