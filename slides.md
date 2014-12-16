@@ -63,6 +63,20 @@ http://deshawresearch.com/
 </footer>
 
 ---
+title: Modeling should scale like the CMO!
+
+- Atomistic models of mutant kinase signaling
+- Atomistic models of drug binding
+- Systems models of altered signalling
+
+Need models to be accurate, robust, and reproducible!
+
+<center>
+<img height=250 src=figures/binding-drawing.png.jpeg />
+<img height=250 src=figures/multiscale-cartoon.png />
+</center>
+
+---
 title: Software for Biophysics
 class: segue dark nobackground
 
@@ -135,6 +149,7 @@ title: Trajectory munging with MDTraj
 subtitle: Lightweight Pythonic API
 
 <pre class="prettyprint" data-lang="python">
+# To install, `conda install -c https://conda.binstar.org/omnia mdtraj`
 import mdtraj as md
 
 trajectory = md.load("./trajectory.h5")
@@ -168,23 +183,6 @@ McGibbon et al, 2014
 
 ---
 title: MSMBuilder
-subtitle: Finding meaning in massive simulation datasets
-
-
-
-<center>
-<img height=300 src=figures/msmbuilder.png />
-</center>
-
-
-<footer class="source"> 
-msmbuilder.org <br>
-https://github.com/msmbuilder/msmbuilder
-</footer>
-
-
----
-title: MSMBuilder
 subtitle: Markov State Models of Conformational Dynamics
 
 
@@ -194,35 +192,54 @@ subtitle: Markov State Models of Conformational Dynamics
 </center>
 
 <footer class="source"> 
+msmbuilder.org <br>
 Voelz, Bowman, Beauchamp, Pande. J. Am. Chem. Soc., 2010
 </footer>
 
 
+---
+title: MSMBuilder3: Design
+
+<div style="float:right; margin-top:-100px">
+<img src="figures/flow-chart.png" height="600">
+</div>
+
+Builds on [scikit-learn](http://scikit-learn.org/stable/) idioms:
+
+- Everything is a `Model`.
+- Models are `fit()` on data.
+- Models learn `attributes_`.
+- Models `transform()` data.
+- `Pipeline()` concatenate models.
+- Meta-models like grid search.
+
+<footer class="source"> 
+http://rmcgibbo.org/posts/whats-new-in-msmbuilder3/
+</footer>
 
 ---
-title: MSMBuilder
-subtitle: sklearn-like statistical models for conformation dynamics
+title: MSMBuilder3: Demo
 
 <pre class="prettyprint" data-lang="python">
-
+# To install, `conda install -c https://conda.binstar.org/omnia msmbuilder`
 import mdtraj as md
-from msmbuilder import datasets, cluster, markovstatemodel
+from msmbuilder import example_datasets, cluster, markovstatemodel
 from sklearn.pipeline import make_pipeline
 
-dataset = datasets.alanine_dipeptide.fetch_alanine_dipeptide()  # From Figshare!
+dataset = example_datasets.alanine_dipeptide.fetch_alanine_dipeptide()  # From Figshare!
 trajectories = dataset["trajectories"]  # List of MDTraj Trajectory Objects
 
-clusterer = cluster.KCenters(n_clusters=10, metric=md.rmsd)
+clusterer = cluster.KCenters(n_clusters=10, metric="rmsd")
 msm = markovstatemodel.MarkovStateModel()
 
-pipeline = make_pipeline([clusterer, msm])
+pipeline = make_pipeline(clusterer, msm)
 pipeline.fit(trajectories)
 
 </pre>
 
 <footer class="source"> 
 msmbuilder.org <br>
-https://github.com/msmbuilder/msmbuilder
+Also has command line interface.
 </footer>
 
 ---
@@ -240,6 +257,44 @@ subtitle: Fast, accurate alchemical ligand binding simulations
 <footer class="source"> 
 https://github.com/choderalab/yank <br>
 http://alchemistry.org/
+</footer>
+
+---
+title: Models are made to be broken
+subtitle: How can we falsify and refine computer based models?
+
+- Chemistry and biophysics are labor-intensive
+- Thousands of parameters = thousands of measurements
+- Reproducibilty and scalability
+
+<center>
+<img height=250 src=figures/robot_image.jpg />
+</center>
+
+---
+title: Can experiments be easy as Py(thon)?
+
+<pre class="prettyprint" data-lang="python">
+
+from itctools.procedures import ITCExperiment
+from itctools.materials import Solvent
+from itctools.labware import Labware
+
+# [...]
+
+water = Solvent('water', density=0.9970479 * grams / milliliter)
+source_plate = Labware(RackLabel='SourcePlate', RackType='5x3 Vial Holder')
+experiment = ITCExperiment()
+
+
+</pre>
+
+
+
+<footer class="source"> 
+Work by @jhprinz and @bas-rustenburg
+<br>
+https://github.com/choderalab/robots <t> https://github.com/choderalab/itctools
 </footer>
 
 ---
@@ -304,13 +359,10 @@ title: Avoiding glibc Hell
 ~/opt/bin/parmchk2_pvt: /lib64/libc.so.6: version `GLIBC_2.14' not found
 </pre>
 
-- Problem: users insist on old Linux versions
+- Problem: users / sysadmins insist on old Linux versions
 - Solution: build all recipes on a Centos 6.6 VM 
 
-<footer class="source"> 
-https://github.com/omnia-md/virtual-machines/
-</footer>
-
+Vagrant box available at https://github.com/omnia-md/virtual-machines/
 
 ---
 title: Facile package sharing
@@ -327,6 +379,13 @@ Me: `conda install -c https://conda.binstar.org/omnia mdtraj`</font>
 
 </pre>
 
+---
+title: Continuous Integration
+subtitle: How to test, package, and share every change?
+
+- Travis (Cloud)
+- Jenkins (Local)
+- Binstar (Cloud)
 
 ---
 title: A full stack for biophysical computation
@@ -336,65 +395,16 @@ subtitle: Simulation, Munging, Analysis, Visualization
 conda install -c http://conda.binstar.org/omnia/channel/omnia1_beta1 omnia
 </pre>
 
-- OpenMM
-- MDTraj
-- MSMBuilder
-- Yank
+- OpenMM 6.2
+- MDTraj 1.3
+- MSMBuilder 3.0 (beta)
+- Yank 1.0 (beta)
+- pymbar 2.1
 - EMMA$^1$
 
 <footer class="source"> 
 1: Senne, Noe.  J. Chem. Theor. Comp. 2012
 </footer>
-
-
----
-title: Automating Biophysics
-class: segue dark nobackground
-
----
-title: Models are made to be broken
-subtitle: How can we falsify and refine computer based models?
-
-- Chemistry and biophysics are labor-intensive
-- Thousands of parameters = thousands of measurements
-- Reproducibilty and scalability
-
----
-title: Can experiments be easy as Py(thon)?
-
-<pre class="prettyprint" data-lang="python">
-
-from itctools.procedures import ITCExperiment
-from itctools.materials import Solvent
-from itctools.labware import Labware
-
-# [...]
-
-water = Solvent('water', density=0.9970479 * grams / milliliter)
-source_plate = Labware(RackLabel='SourcePlate', RackType='5x3 Vial Holder')
-experiment = ITCExperiment()
-
-
-</pre>
-
-
-
-<footer class="source"> 
-Work by @jhprinz and @bas-rustenburg
-<br>
-https://github.com/choderalab/robots <t> https://github.com/choderalab/itctools
-</footer>
-
----
-title: Robots!
-
-
-<center>
-<video width="960" height="540" controls>
-  <source src="movies/robot.mp4" type="video/mp4">
-</video>
-</center> 
-
 
 ---
 title: Biophysical modeling should be:
@@ -430,7 +440,7 @@ Frank Noe, Martin Scherer, Xuhui Huang, Sergio Bacallado, Mark Friedrichs
 title: Questions?
 
 <pre class="prettyprint" data-lang="bash">
-conda install -c https://conda.binstar.org/omnia/channel/test omnia
+conda install -c http://conda.binstar.org/omnia/channel/omnia1_beta1 omnia
 </pre>
 
 omnia.md

@@ -150,6 +150,25 @@ http://deshawresearch.com/
  
 </slide>
 
+<slide  >
+  
+    <hgroup>
+      <h2>Modeling should scale like the CMO!</h2>
+      <h3></h3>
+    </hgroup>
+    <article ><ul>
+<li>Atomistic models of mutant kinase signaling</li>
+<li>Atomistic models of drug binding</li>
+<li>Systems models of altered signalling</li>
+</ul>
+<p>Need models to be accurate, robust, and reproducible!</p>
+<p><center>
+<img height=250 src=figures/binding-drawing.png.jpeg />
+<img height=250 src=figures/multiscale-cartoon.png />
+</center></p></article>
+ 
+</slide>
+
 <slide class="segue dark nobackground" >
   
     <!-- <aside class="gdbar"><img src="images/google_developers_icon_128.png"></aside> -->
@@ -246,6 +265,7 @@ McGibbon et al, 2014
       <h3>Lightweight Pythonic API</h3>
     </hgroup>
     <article ><pre class="prettyprint" data-lang="python">
+# To install, `conda install -c https://conda.binstar.org/omnia mdtraj`
 import mdtraj as md
 
 trajectory = md.load("./trajectory.h5")
@@ -282,28 +302,13 @@ McGibbon et al, 2014
   
     <hgroup>
       <h2>MSMBuilder</h2>
-      <h3>Finding meaning in massive simulation datasets</h3>
-    </hgroup>
-    <article ><p><center>
-<img height=300 src=figures/msmbuilder.png />
-</center></p>
-<footer class="source"> 
-msmbuilder.org <br>
-https://github.com/msmbuilder/msmbuilder
-</footer></article>
- 
-</slide>
-
-<slide  >
-  
-    <hgroup>
-      <h2>MSMBuilder</h2>
       <h3>Markov State Models of Conformational Dynamics</h3>
     </hgroup>
     <article ><p><center>
 <img height=400 src=figures/NTL9_network.jpg />
 </center></p>
 <footer class="source"> 
+msmbuilder.org <br>
 Voelz, Bowman, Beauchamp, Pande. J. Am. Chem. Soc., 2010
 </footer></article>
  
@@ -312,29 +317,54 @@ Voelz, Bowman, Beauchamp, Pande. J. Am. Chem. Soc., 2010
 <slide  >
   
     <hgroup>
-      <h2>MSMBuilder</h2>
-      <h3>sklearn-like statistical models for conformation dynamics</h3>
+      <h2>MSMBuilder3: Design</h2>
+      <h3></h3>
+    </hgroup>
+    <article ><div style="float:right; margin-top:-100px">
+<img src="figures/flow-chart.png" height="600">
+</div>
+
+<p>Builds on <a href="http://scikit-learn.org/stable/">scikit-learn</a> idioms:</p>
+<ul>
+<li>Everything is a <code>Model</code>.</li>
+<li>Models are <code>fit()</code> on data.</li>
+<li>Models learn <code>attributes_</code>.</li>
+<li>Models <code>transform()</code> data.</li>
+<li><code>Pipeline()</code> concatenate models.</li>
+<li>Meta-models like grid search.</li>
+</ul>
+<footer class="source"> 
+http://rmcgibbo.org/posts/whats-new-in-msmbuilder3/
+</footer></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>MSMBuilder3: Demo</h2>
+      <h3></h3>
     </hgroup>
     <article ><pre class="prettyprint" data-lang="python">
-
+# To install, `conda install -c https://conda.binstar.org/omnia msmbuilder`
 import mdtraj as md
-from msmbuilder import datasets, cluster, markovstatemodel
+from msmbuilder import example_datasets, cluster, markovstatemodel
 from sklearn.pipeline import make_pipeline
 
-dataset = datasets.alanine_dipeptide.fetch_alanine_dipeptide()  # From Figshare!
+dataset = example_datasets.alanine_dipeptide.fetch_alanine_dipeptide()  # From Figshare!
 trajectories = dataset["trajectories"]  # List of MDTraj Trajectory Objects
 
-clusterer = cluster.KCenters(n_clusters=10, metric=md.rmsd)
+clusterer = cluster.KCenters(n_clusters=10, metric="rmsd")
 msm = markovstatemodel.MarkovStateModel()
 
-pipeline = make_pipeline([clusterer, msm])
+pipeline = make_pipeline(clusterer, msm)
 pipeline.fit(trajectories)
 
 </pre>
 
 <footer class="source"> 
 msmbuilder.org <br>
-https://github.com/msmbuilder/msmbuilder
+Also has command line interface.
 </footer></article>
  
 </slide>
@@ -353,6 +383,52 @@ https://github.com/msmbuilder/msmbuilder
 <footer class="source"> 
 https://github.com/choderalab/yank <br>
 http://alchemistry.org/
+</footer></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Models are made to be broken</h2>
+      <h3>How can we falsify and refine computer based models?</h3>
+    </hgroup>
+    <article ><ul>
+<li>Chemistry and biophysics are labor-intensive</li>
+<li>Thousands of parameters = thousands of measurements</li>
+<li>Reproducibilty and scalability</li>
+</ul>
+<p><center>
+<img height=250 src=figures/robot_image.jpg />
+</center></p></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
+      <h2>Can experiments be easy as Py(thon)?</h2>
+      <h3></h3>
+    </hgroup>
+    <article ><pre class="prettyprint" data-lang="python">
+
+from itctools.procedures import ITCExperiment
+from itctools.materials import Solvent
+from itctools.labware import Labware
+
+# [...]
+
+water = Solvent('water', density=0.9970479 * grams / milliliter)
+source_plate = Labware(RackLabel='SourcePlate', RackType='5x3 Vial Holder')
+experiment = ITCExperiment()
+
+
+</pre>
+
+<footer class="source"> 
+Work by @jhprinz and @bas-rustenburg
+<br>
+https://github.com/choderalab/robots <t> https://github.com/choderalab/itctools
 </footer></article>
  
 </slide>
@@ -440,12 +516,10 @@ Red means hard to install.
 </pre>
 
 <ul>
-<li>Problem: users insist on old Linux versions</li>
+<li>Problem: users / sysadmins insist on old Linux versions</li>
 <li>Solution: build all recipes on a Centos 6.6 VM </li>
 </ul>
-<footer class="source"> 
-https://github.com/omnia-md/virtual-machines/
-</footer></article>
+<p>Vagrant box available at https://github.com/omnia-md/virtual-machines/</p></article>
  
 </slide>
 
@@ -472,6 +546,20 @@ Me: `conda install -c https://conda.binstar.org/omnia mdtraj`</font>
 <slide  >
   
     <hgroup>
+      <h2>Continuous Integration</h2>
+      <h3>How to test, package, and share every change?</h3>
+    </hgroup>
+    <article ><ul>
+<li>Travis (Cloud)</li>
+<li>Jenkins (Local)</li>
+<li>Binstar (Cloud)</li>
+</ul></article>
+ 
+</slide>
+
+<slide  >
+  
+    <hgroup>
       <h2>A full stack for biophysical computation</h2>
       <h3>Simulation, Munging, Analysis, Visualization</h3>
     </hgroup>
@@ -480,82 +568,16 @@ conda install -c http://conda.binstar.org/omnia/channel/omnia1_beta1 omnia
 </pre>
 
 <ul>
-<li>OpenMM</li>
-<li>MDTraj</li>
-<li>MSMBuilder</li>
-<li>Yank</li>
+<li>OpenMM 6.2</li>
+<li>MDTraj 1.3</li>
+<li>MSMBuilder 3.0 (beta)</li>
+<li>Yank 1.0 (beta)</li>
+<li>pymbar 2.1</li>
 <li>EMMA<mathjax>$^1$</mathjax></li>
 </ul>
 <footer class="source"> 
 1: Senne, Noe.  J. Chem. Theor. Comp. 2012
 </footer></article>
- 
-</slide>
-
-<slide class="segue dark nobackground" >
-  
-    <!-- <aside class="gdbar"><img src="images/google_developers_icon_128.png"></aside> -->
-    <hgroup class="auto-fadein">
-      <h2>Automating Biophysics</h2>
-      <h3></h3>
-    </hgroup>
-  
-</slide>
-
-<slide  >
-  
-    <hgroup>
-      <h2>Models are made to be broken</h2>
-      <h3>How can we falsify and refine computer based models?</h3>
-    </hgroup>
-    <article ><ul>
-<li>Chemistry and biophysics are labor-intensive</li>
-<li>Thousands of parameters = thousands of measurements</li>
-<li>Reproducibilty and scalability</li>
-</ul></article>
- 
-</slide>
-
-<slide  >
-  
-    <hgroup>
-      <h2>Can experiments be easy as Py(thon)?</h2>
-      <h3></h3>
-    </hgroup>
-    <article ><pre class="prettyprint" data-lang="python">
-
-from itctools.procedures import ITCExperiment
-from itctools.materials import Solvent
-from itctools.labware import Labware
-
-# [...]
-
-water = Solvent('water', density=0.9970479 * grams / milliliter)
-source_plate = Labware(RackLabel='SourcePlate', RackType='5x3 Vial Holder')
-experiment = ITCExperiment()
-
-
-</pre>
-
-<footer class="source"> 
-Work by @jhprinz and @bas-rustenburg
-<br>
-https://github.com/choderalab/robots <t> https://github.com/choderalab/itctools
-</footer></article>
- 
-</slide>
-
-<slide  >
-  
-    <hgroup>
-      <h2>Robots!</h2>
-      <h3></h3>
-    </hgroup>
-    <article ><p><center>
-<video width="960" height="540" controls>
-  <source src="movies/robot.mp4" type="video/mp4">
-</video>
-</center> </p></article>
  
 </slide>
 
@@ -607,7 +629,7 @@ Frank Noe, Martin Scherer, Xuhui Huang, Sergio Bacallado, Mark Friedrichs
       <h3></h3>
     </hgroup>
     <article ><pre class="prettyprint" data-lang="bash">
-conda install -c https://conda.binstar.org/omnia/channel/test omnia
+conda install -c http://conda.binstar.org/omnia/channel/omnia1_beta1 omnia
 </pre>
 
 <p>omnia.md</p>
