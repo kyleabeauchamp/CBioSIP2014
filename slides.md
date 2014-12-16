@@ -338,7 +338,7 @@ conda install -c http://conda.binstar.org/omnia/channel/omnia1_beta1 omnia
 
 - OpenMM
 - MDTraj
-- MSMBuilder / Mixtape
+- MSMBuilder
 - Yank
 - EMMA$^1$
 
