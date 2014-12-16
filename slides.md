@@ -440,6 +440,7 @@ Frank Noe, Martin Scherer, Xuhui Huang, Sergio Bacallado, Mark Friedrichs
 title: Questions?
 
 <pre class="prettyprint" data-lang="bash">
+conda config --add channels http://conda.binstar.org/omnia/
 conda install -c http://conda.binstar.org/omnia/channel/omnia1_beta1 omnia
 </pre>
 
