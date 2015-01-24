@@ -392,7 +392,7 @@ title: A full stack for biophysical computation
 subtitle: Simulation, Munging, Analysis, Visualization
 
 <pre class="prettyprint" data-lang="bash">
-conda install -c http://conda.binstar.org/omnia/channel/omnia1_beta1 omnia
+conda install -c https://conda.binstar.org/omnia omnia
 </pre>
 
 - OpenMM 6.2
@@ -441,7 +441,7 @@ title: Questions?
 
 <pre class="prettyprint" data-lang="bash">
 conda config --add channels http://conda.binstar.org/omnia/
-conda install -c http://conda.binstar.org/omnia/channel/omnia1_beta1 omnia
+conda install -c https://conda.binstar.org/omnia omnia
 </pre>
 
 omnia.md
